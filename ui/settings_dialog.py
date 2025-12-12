@@ -21,14 +21,14 @@ class SettingsOverlay(QWidget):
             'interval': 15
         }
         
-        self. sliders = {}
+        self.sliders = {}
         self.value_labels = {}
         
         self._init_ui()
         
     def _get_mono_font(self, size, bold=False):
         """Restituisce font monospace."""
-        weight = QFont.Weight.Bold if bold else QFont. Weight.Normal
+        weight = QFont.Weight.Bold if bold else QFont.Weight. Normal
         font = QFont("Space Mono", size, weight)
         font.setStyleHint(QFont.StyleHint.Monospace)
         return font
@@ -40,7 +40,7 @@ class SettingsOverlay(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         
-        # Sfondo scuro semi-trasparente (NON cliccabile per chiudere)
+        # Sfondo scuro semi-trasparente
         self.backdrop = QWidget()
         self.backdrop.setStyleSheet("background-color: rgba(0, 0, 0, 0.85);")
         
@@ -52,19 +52,20 @@ class SettingsOverlay(QWidget):
         self.panel = QFrame()
         self.panel.setFixedWidth(372)
         self.panel.setStyleSheet("""
-            QFrame {
+            QFrame#settingsPanel {
                 background-color: #0A0A0A;
-                border:  2px solid rgba(0, 255, 0, 0.5);
+                border: 2px solid rgba(0, 255, 0, 0.5);
             }
         """)
+        self.panel. setObjectName("settingsPanel")
         
         panel_layout = QVBoxLayout(self.panel)
         panel_layout.setSpacing(0)
         panel_layout.setContentsMargins(0, 0, 0, 0)
         
-        panel_layout.addWidget(self._create_header())
+        panel_layout. addWidget(self._create_header())
         panel_layout.addWidget(self._create_status_bar())
-        panel_layout.addWidget(self._create_content(), 1)
+        panel_layout. addWidget(self._create_content(), 1)
         panel_layout.addWidget(self._create_footer())
         
         backdrop_layout.addWidget(self. panel)
@@ -79,6 +80,10 @@ class SettingsOverlay(QWidget):
                 border: none;
                 border-bottom: 1px solid rgba(0, 255, 0, 0.3);
             }
+            QLabel {
+                background:  transparent;
+                border: none;
+            }
         """)
         layout = QHBoxLayout(container)
         layout.setContentsMargins(20, 16, 20, 16)
@@ -89,12 +94,12 @@ class SettingsOverlay(QWidget):
         
         icon = QLabel("⬢")
         icon.setFont(QFont("Arial", 14))
-        icon.setStyleSheet("color: #00FF00; background: transparent;")
+        icon.setStyleSheet("color: #00FF00;")
         title_layout.addWidget(icon)
         
         title = QLabel("CONFIG_CONSOLE")
         title.setFont(self._get_mono_font(12, bold=True))
-        title.setStyleSheet("color: #00FF00; background: transparent;")
+        title.setStyleSheet("color: #00FF00;")
         title_layout.addWidget(title)
         
         layout.addLayout(title_layout)
@@ -107,7 +112,7 @@ class SettingsOverlay(QWidget):
         close_btn.setFont(QFont("Arial", 14))
         close_btn.setStyleSheet("""
             QPushButton {
-                background-color:  transparent;
+                background-color: transparent;
                 color: #666666;
                 border: none;
             }
@@ -116,7 +121,7 @@ class SettingsOverlay(QWidget):
                 background-color: rgba(255, 51, 51, 0.1);
             }
         """)
-        close_btn.clicked.connect(self. close_overlay)
+        close_btn.clicked.connect(self.close_overlay)
         layout.addWidget(close_btn)
         
         return container
@@ -130,25 +135,29 @@ class SettingsOverlay(QWidget):
                 border: none;
                 border-bottom: 1px solid rgba(0, 255, 0, 0.2);
             }
+            QLabel {
+                background: transparent;
+                border: none;
+            }
         """)
         layout = QHBoxLayout(container)
         layout.setContentsMargins(20, 8, 20, 8)
         
         dot = QLabel("●")
         dot.setFont(QFont("Arial", 6))
-        dot.setStyleSheet("color: #00FF00; background: transparent;")
+        dot.setStyleSheet("color: #00FF00;")
         layout.addWidget(dot)
         
         status = QLabel("EDIT_MODE_ACTIVE")
         status.setFont(self._get_mono_font(8))
-        status.setStyleSheet("color: #00FF00; letter-spacing: 2px; background: transparent;")
+        status.setStyleSheet("color: #00FF00; letter-spacing: 2px;")
         layout.addWidget(status)
         
         layout.addStretch()
         
         id_label = QLabel("ID:  992-AZ")
         id_label.setFont(self._get_mono_font(8))
-        id_label.setStyleSheet("color: #666666; background: transparent;")
+        id_label.setStyleSheet("color: #666666;")
         layout.addWidget(id_label)
         
         return container
@@ -156,7 +165,15 @@ class SettingsOverlay(QWidget):
     def _create_content(self):
         """Contenuto con slider."""
         container = QWidget()
-        container.setStyleSheet("background-color: #0A0A0A;")
+        container.setStyleSheet("""
+            QWidget {
+                background-color: #0A0A0A;
+            }
+            QLabel {
+                background: transparent;
+                border: none;
+            }
+        """)
         layout = QVBoxLayout(container)
         layout.setSpacing(28)
         layout.setContentsMargins(24, 28, 24, 20)
@@ -205,7 +222,7 @@ class SettingsOverlay(QWidget):
         
         title_label = QLabel(title)
         title_label.setFont(self._get_mono_font(9, bold=True))
-        title_label.setStyleSheet("color: #00FFFF; letter-spacing: 2px;")
+        title_label.setStyleSheet("color: #00FFFF;")
         header.addWidget(title_label)
         
         header. addStretch()
@@ -225,31 +242,37 @@ class SettingsOverlay(QWidget):
         
         layout.addLayout(header)
         
-        # Slider
-        slider = QSlider(Qt. Orientation.Horizontal)
+        # Slider con stile hacker
+        slider = QSlider(Qt.Orientation.Horizontal)
         slider.setMinimum(min_val)
         slider.setMaximum(max_val)
         slider.setValue(default)
-        slider.setFixedHeight(20)
+        slider.setFixedHeight(24)
         slider.setStyleSheet("""
             QSlider:: groove:horizontal {
                 height:  8px;
-                background: #111111;
+                background:  #111111;
                 border: 1px solid #333333;
+                border-radius: 0px;
             }
             QSlider::sub-page:horizontal {
-                background: rgba(0, 255, 0, 0.3);
+                background: rgba(0, 255, 0, 0.2);
                 border: 1px solid #333333;
+                border-radius:  0px;
             }
             QSlider::handle:horizontal {
                 background: #00FF00;
                 width: 16px;
                 height: 16px;
-                margin: -5px 0;
+                margin: -4px 0;
                 border:  2px solid #000000;
+                border-radius:  0px;
             }
             QSlider::handle:horizontal:hover {
-                background: #00CC00;
+                background: #00FF00;
+                width: 18px;
+                height: 18px;
+                margin: -5px 0;
             }
         """)
         
@@ -288,7 +311,11 @@ class SettingsOverlay(QWidget):
         container.setStyleSheet("""
             QFrame {
                 border-left: 2px solid #222222;
+                background:  transparent;
+            }
+            QLabel {
                 background: transparent;
+                border: none;
             }
         """)
         layout = QVBoxLayout(container)
@@ -304,7 +331,7 @@ class SettingsOverlay(QWidget):
         for log in logs:
             label = QLabel(log)
             label.setFont(self._get_mono_font(8))
-            label.setStyleSheet("color: #333333; background: transparent;")
+            label.setStyleSheet("color: #333333;")
             layout.addWidget(label)
             
         return container
@@ -350,7 +377,7 @@ class SettingsOverlay(QWidget):
         save_btn.setStyleSheet("""
             QPushButton {
                 background-color:  #00FF00;
-                color:  #050505;
+                color: #050505;
                 border: none;
             }
             QPushButton:hover {
