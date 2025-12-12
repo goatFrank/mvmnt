@@ -11,9 +11,9 @@ class Mvmnt:
     """Gestisce il movimento del mouse in modo indipendente dalla UI."""
     
     def __init__(self):
-        self.radius = 10  # Default 10, range 5-20
-        self. speed = 4    # Default 4, range 1-10
-        self.interval = 30  # Default 30, range 10-120
+        self.radius = 60   # Default 60, range 20-120
+        self.speed = 4     # Default 4, range 1-10
+        self.interval = 30 # Default 30, range 10-120
         
         self.center_x = None
         self.center_y = None
@@ -26,7 +26,7 @@ class Mvmnt:
         self.on_error = None
         
     def set_radius(self, value):
-        """Imposta il raggio del cerchio in pixel (5-20)."""
+        """Imposta il raggio del cerchio in pixel (20-120)."""
         self.radius = value
         
     def set_speed(self, value):
@@ -35,13 +35,12 @@ class Mvmnt:
         
     def _get_delay(self):
         """Calcola il delay basato sulla velocità."""
-        # speed 1  -> 0.025s (lento)
-        # speed 10 -> 0.0025s (velocissimo)
-        # Formula: delay diminuisce esponenzialmente con la velocità
+        # speed 1  -> 0.027s (lento)
+        # speed 10 -> 0.003s (velocissimo)
         base_delay = 0.03
         speed_factor = self.speed / 10.0
         delay = base_delay * (1 - (speed_factor * 0.9))
-        return max(delay, 0.001)  # Minimo 1ms
+        return max(delay, 0.001)
         
     def set_interval(self, value):
         """Imposta l'intervallo tra le rotazioni in secondi (10-120)."""
@@ -82,7 +81,7 @@ class Mvmnt:
                     break
                 
                 # Aggiorna centro dalla posizione attuale
-                self. center_x, self.center_y = pyautogui.position()
+                self.center_x, self.center_y = pyautogui.position()
                 
                 # Esegui rotazione
                 self._do_circle_rotation()
@@ -93,13 +92,13 @@ class Mvmnt:
                     
         except pyautogui.FailSafeException:
             self._handle_error("FailSafe attivato - mouse nell'angolo")
-        except Exception as e:
+        except Exception as e: 
             self._handle_error(str(e))
             
     def _do_circle_rotation(self):
         """Esegue una singola rotazione completa."""
-        # Numero di step basato sul raggio per movimento fluido
-        steps = max(60, self.radius * 6)
+        # Numero di step per movimento fluido
+        steps = max(120, self.radius * 3)
         angle_increment = (2 * math.pi) / steps
         angle = 0
         delay = self._get_delay()

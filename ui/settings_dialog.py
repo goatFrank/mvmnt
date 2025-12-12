@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import (
+from PyQt6. QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QSlider, QPushButton, QFrame
 )
@@ -15,11 +15,11 @@ class SettingsOverlay(QWidget):
         super().__init__(parent)
         self.mouse = mouse_controller
         
-        # Nuovi valori default e range
+        # Valori default e range aggiornati
         self.defaults = {
-            'radius': 10,    # Default 10, range 5-20
+            'radius': 60,    # Default 60, range 20-120
             'speed': 4,      # Default 4, range 1-10
-            'interval':  30   # Default 30, range 10-120
+            'interval': 30   # Default 30, range 10-120
         }
         
         self.sliders = {}
@@ -36,7 +36,7 @@ class SettingsOverlay(QWidget):
         
     def _init_ui(self):
         """Costruisce l'overlay."""
-        self.setStyleSheet("background: transparent;")
+        self.setStyleSheet("background:  transparent;")
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -55,7 +55,7 @@ class SettingsOverlay(QWidget):
         self.panel.setObjectName("settingsPanel")
         self.panel.setStyleSheet("""
             QFrame#settingsPanel {
-                background-color:  #0A0A0A;
+                background-color: #0A0A0A;
                 border: 2px solid rgba(0, 255, 0, 0.5);
             }
         """)
@@ -69,7 +69,7 @@ class SettingsOverlay(QWidget):
         panel_layout.addWidget(self._create_content(), 1)
         panel_layout.addWidget(self._create_footer())
         
-        backdrop_layout.addWidget(self.panel)
+        backdrop_layout.addWidget(self. panel)
         layout.addWidget(self.backdrop)
         
     def _create_header(self):
@@ -82,7 +82,7 @@ class SettingsOverlay(QWidget):
                 border-bottom: 1px solid rgba(0, 255, 0, 0.3);
             }
             QLabel {
-                background: transparent;
+                background:  transparent;
                 border: none;
             }
         """)
@@ -179,12 +179,12 @@ class SettingsOverlay(QWidget):
         layout.setSpacing(28)
         layout.setContentsMargins(24, 28, 24, 20)
         
-        # Slider Raggio:  5-20, default 10
+        # Slider Raggio:  20-120, default 60
         layout.addWidget(self._create_slider_group(
             "radius", "RAGGIO CERCHIO",
-            5, 20, self.defaults['radius'],
+            20, 120, self.defaults['radius'],
             self.mouse.set_radius,
-            "5", "20", suffix="px"
+            "20px", "120px", suffix="px"
         ))
         
         # Slider Velocità: 1-10, default 4
@@ -251,9 +251,9 @@ class SettingsOverlay(QWidget):
         slider.setFixedHeight(24)
         slider.setStyleSheet("""
             QSlider:: groove:horizontal {
-                height: 8px;
-                background: #111111;
-                border:  1px solid #333333;
+                height:  8px;
+                background:  #111111;
+                border: 1px solid #333333;
                 border-radius: 0px;
             }
             QSlider::sub-page:horizontal {
@@ -263,7 +263,7 @@ class SettingsOverlay(QWidget):
             }
             QSlider::handle:horizontal {
                 background: #00FF00;
-                width: 16px;
+                width:  16px;
                 height: 16px;
                 margin: -4px 0;
                 border:  2px solid #000000;
