@@ -7,7 +7,7 @@ from PyQt6.QtGui import QFont
 
 
 class SettingsDialog(QDialog):
-    """Dialog popup per le impostazioni."""
+    """Dialog popup per le impostazioni - Stile Hacker Terminal."""
     
     def __init__(self, mouse_controller, parent=None):
         super().__init__(parent)
@@ -29,8 +29,8 @@ class SettingsDialog(QDialog):
         
     def _setup_window(self):
         """Configura la finestra del dialog."""
-        self.setWindowTitle("Impostazioni")
-        self.setFixedSize(400, 580)
+        self.setWindowTitle("Config_Console.exe")
+        self.setFixedSize(390, 884)
         self.setModal(True)
         self.setWindowFlags(
             self.windowFlags() | 
@@ -38,22 +38,28 @@ class SettingsDialog(QDialog):
         )
         self.setAttribute(Qt.WidgetAttribute. WA_TranslucentBackground)
         
+    def _get_mono_font(self, size, bold=False):
+        """Restituisce il font monospace."""
+        weight = QFont.Weight.Bold if bold else QFont.Weight. Normal
+        font = QFont("Space Mono", size, weight)
+        font.setStyleHint(QFont.StyleHint.Monospace)
+        return font
+        
     def _init_ui(self):
         """Costruisce l'interfaccia."""
-        # Container principale con bordi arrotondati
+        # Container principale
         main_container = QWidget()
         main_container.setObjectName("mainContainer")
         main_container. setStyleSheet("""
             #mainContainer {
-                background-color: #1C1C1E;
-                border-radius: 24px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                background-color: #050505;
+                border:  2px solid rgba(0, 255, 0, 0.5);
             }
         """)
         
         dialog_layout = QVBoxLayout(self)
         dialog_layout.setContentsMargins(0, 0, 0, 0)
-        dialog_layout. addWidget(main_container)
+        dialog_layout.addWidget(main_container)
         
         layout = QVBoxLayout(main_container)
         layout.setSpacing(0)
@@ -62,48 +68,11 @@ class SettingsDialog(QDialog):
         # Header
         layout.addWidget(self._create_header())
         
-        # Contenuto scrollabile
-        content = QWidget()
-        content.setStyleSheet("background:  transparent;")
-        content_layout = QVBoxLayout(content)
-        content_layout.setSpacing(24)
-        content_layout.setContentsMargins(24, 24, 24, 24)
+        # Status bar
+        layout.addWidget(self._create_status_bar())
         
-        # Info box
-        content_layout.addWidget(self._create_info_box())
-        
-        # Slider Raggio
-        content_layout.addWidget(self._create_slider_group(
-            "radius",
-            "Raggio del cerchio",
-            "Dimensione movimento",
-            10, 150, self.mouse.radius,
-            self.mouse.set_radius,
-            "Piccolo", "Grande"
-        ))
-        
-        # Slider Velocità
-        content_layout.addWidget(self._create_slider_group(
-            "speed",
-            "Velocità",
-            "Rapidità cursore",
-            1, 10, 5,
-            self.mouse. set_speed,
-            "Lento", "Veloce"
-        ))
-        
-        # Slider Intervallo
-        content_layout.addWidget(self._create_slider_group(
-            "interval",
-            "Intervallo Rotazione",
-            "Frequenza ciclo",
-            1, 60, self.mouse.interval,
-            self.mouse.set_interval,
-            "1s", "60s",
-            suffix="s"
-        ))
-        
-        layout.addWidget(content)
+        # Contenuto con slider
+        layout.addWidget(self._create_content(), 1)
         
         # Footer con bottoni
         layout.addWidget(self._create_footer())
@@ -113,80 +82,140 @@ class SettingsDialog(QDialog):
         container = QFrame()
         container.setStyleSheet("""
             QFrame {
-                background-color: rgba(28, 28, 30, 0.9);
-                border-bottom: 1px solid #3A3A3C;
-                border-top-left-radius: 24px;
-                border-top-right-radius: 24px;
+                background-color: #111111;
+                border-bottom: 1px solid rgba(0, 255, 0, 0.3);
             }
         """)
         layout = QHBoxLayout(container)
-        layout.setContentsMargins(24, 20, 24, 20)
+        layout.setContentsMargins(16, 16, 16, 16)
+        
+        # Icona e titolo
+        title_layout = QHBoxLayout()
+        title_layout.setSpacing(8)
+        
+        # Icona terminal
+        icon = QLabel("⬢")
+        icon.setFont(QFont("Arial", 14))
+        icon.setStyleSheet("color: #00FF00; background:  transparent;")
+        title_layout.addWidget(icon)
         
         # Titolo
-        title = QLabel("Impostazioni")
-        title.setFont(QFont("Inter", 18, QFont.Weight.Bold))
-        title.setStyleSheet("color: white; background:  transparent; border: none;")
-        layout.addWidget(title)
+        title = QLabel("Config_Console.exe")
+        title.setFont(self._get_mono_font(11, bold=True))
+        title.setStyleSheet("color: #00FF00; background: transparent;")
+        title_layout.addWidget(title)
         
+        layout.addLayout(title_layout)
         layout.addStretch()
         
         # Bottone chiudi
         close_btn = QPushButton("✕")
-        close_btn.setFixedSize(32, 32)
+        close_btn.setFixedSize(28, 28)
         close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        close_btn.setFont(QFont("Inter", 14))
+        close_btn.setFont(QFont("Arial", 12))
         close_btn.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
-                color: #98989D;
+                color: #666666;
                 border: none;
-                border-radius: 16px;
             }
             QPushButton:hover {
-                background-color: rgba(255, 255, 255, 0.1);
-                color: white;
+                color: #FF3333;
             }
         """)
-        close_btn.clicked. connect(self.accept)
+        close_btn.clicked.connect(self.accept)
         layout.addWidget(close_btn)
         
         return container
         
-    def _create_info_box(self):
-        """Crea il box informativo."""
+    def _create_status_bar(self):
+        """Crea la barra di stato sotto l'header."""
         container = QFrame()
         container.setStyleSheet("""
             QFrame {
-                background-color: rgba(41, 121, 255, 0.15);
-                border:  1px solid rgba(41, 121, 255, 0.3);
-                border-radius: 12px;
-                padding: 16px;
+                background-color:  rgba(0, 255, 0, 0.05);
+                border-bottom: 1px solid rgba(0, 255, 0, 0.2);
             }
         """)
         layout = QHBoxLayout(container)
-        layout.setContentsMargins(16, 12, 16, 12)
-        layout.setSpacing(12)
+        layout.setContentsMargins(16, 8, 16, 8)
         
-        # Icona info
-        icon = QLabel("ℹ")
-        icon.setFont(QFont("Inter", 16))
-        icon.setStyleSheet("color: #2979FF; background: transparent; border: none;")
-        icon.setAlignment(Qt.AlignmentFlag.AlignTop)
-        layout.addWidget(icon)
+        # Status indicator
+        status_layout = QHBoxLayout()
+        status_layout.setSpacing(8)
         
-        # Testo
-        text = QLabel("Configura i parametri del movimento automatico per evitare la sospensione del sistema.")
-        text.setFont(QFont("Inter", 12))
-        text.setStyleSheet("color: #E0E0E0; background:  transparent; border: none;")
-        text.setWordWrap(True)
-        layout.addWidget(text, 1)
+        # Dot pulsante
+        dot = QLabel("●")
+        dot.setFont(QFont("Arial", 6))
+        dot.setStyleSheet("color: #00FF00; background: transparent;")
+        status_layout.addWidget(dot)
+        
+        # Status text
+        status = QLabel("STATUS: EDIT_MODE_ACTIVE")
+        status.setFont(self._get_mono_font(8))
+        status.setStyleSheet("color: #00FF00; letter-spacing: 2px; background: transparent;")
+        status_layout.addWidget(status)
+        
+        layout.addLayout(status_layout)
+        layout.addStretch()
+        
+        # ID
+        id_label = QLabel("ID: 992-AZ")
+        id_label.setFont(self._get_mono_font(8))
+        id_label.setStyleSheet("color: #666666; background: transparent;")
+        layout.addWidget(id_label)
         
         return container
         
-    def _create_slider_group(self, key, title, subtitle, min_val, max_val, default, callback, label_min, label_max, suffix=""):
-        """Crea un gruppo slider con design aggiornato."""
+    def _create_content(self):
+        """Crea il contenuto con gli slider."""
         container = QWidget()
-        container.setStyleSheet("background: transparent;")
+        container.setStyleSheet("background-color: #050505;")
+        layout = QVBoxLayout(container)
+        layout.setSpacing(32)
+        layout.setContentsMargins(24, 32, 24, 24)
+        
+        # Slider Raggio
+        layout.addWidget(self._create_slider_group(
+            "radius",
+            "RAGGIO DEL CERCHIO",
+            1, 100, self.mouse.radius,
+            self.mouse.set_radius,
+            "MIN_1", "MAX_100",
+            suffix="px"
+        ))
+        
+        # Slider Velocità
+        layout.addWidget(self._create_slider_group(
+            "speed",
+            "VELOCITÀ",
+            1, 10, 5,
+            self.mouse. set_speed,
+            "SLOW", "FAST",
+            prefix="Lv. "
+        ))
+        
+        # Slider Intervallo
+        layout.addWidget(self._create_slider_group(
+            "interval",
+            "INTERVALLO ROTAZIONE",
+            1, 60, self.mouse.interval,
+            self.mouse.set_interval,
+            "1s", "60s",
+            suffix="s"
+        ))
+        
+        layout.addStretch()
+        
+        # Console log decorativo
+        layout.addWidget(self._create_console_log())
+        
+        return container
+        
+    def _create_slider_group(self, key, title, min_val, max_val, default, callback, label_min, label_max, suffix="", prefix=""):
+        """Crea un gruppo slider con design hacker."""
+        container = QWidget()
+        container.setStyleSheet("background:  transparent;")
         layout = QVBoxLayout(container)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(12)
@@ -194,34 +223,22 @@ class SettingsDialog(QDialog):
         # Header con titolo e valore
         header = QHBoxLayout()
         
-        # Titolo e sottotitolo
-        title_container = QVBoxLayout()
-        title_container.setSpacing(2)
-        
+        # Titolo
         title_label = QLabel(title)
-        title_label.setFont(QFont("Inter", 13, QFont.Weight.DemiBold))
-        title_label.setStyleSheet("color: white;")
-        title_container.addWidget(title_label)
+        title_label.setFont(self._get_mono_font(9, bold=True))
+        title_label.setStyleSheet("color: #00FFFF; letter-spacing: 2px;")
+        header.addWidget(title_label)
         
-        subtitle_label = QLabel(subtitle)
-        subtitle_label.setFont(QFont("Inter", 11))
-        subtitle_label.setStyleSheet("color: #98989D;")
-        title_container.addWidget(subtitle_label)
-        
-        header.addLayout(title_container)
-        header.addStretch()
+        header. addStretch()
         
         # Badge con valore
-        value_text = f"{default}{suffix}"
+        value_text = f"{prefix}{default}{suffix}"
         value_label = QLabel(value_text)
-        value_label.setFont(QFont("Inter", 14, QFont.Weight.Bold))
-        value_label.setFixedWidth(60)
-        value_label.setAlignment(Qt.AlignmentFlag. AlignCenter)
+        value_label.setFont(self._get_mono_font(10, bold=True))
         value_label.setStyleSheet("""
-            color: #2979FF;
-            background-color: rgba(41, 121, 255, 0.15);
-            border: 1px solid rgba(41, 121, 255, 0.3);
-            border-radius: 8px;
+            color: #00FF00;
+            background-color: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.2);
             padding: 4px 8px;
         """)
         header.addWidget(value_label)
@@ -233,34 +250,34 @@ class SettingsDialog(QDialog):
         slider.setMinimum(min_val)
         slider.setMaximum(max_val)
         slider.setValue(default)
-        slider.setFixedHeight(24)
+        slider.setFixedHeight(20)
         slider.setStyleSheet("""
             QSlider:: groove:horizontal {
-                height: 6px;
-                background: #3A3A3C;
-                border-radius: 3px;
+                height: 8px;
+                background: #111111;
+                border: 1px solid #333333;
             }
-            QSlider::sub-page: horizontal {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #2979FF, stop:1 #448AFF);
-                border-radius: 3px;
+            QSlider::sub-page:horizontal {
+                background: rgba(0, 255, 0, 0.3);
+                border: 1px solid #333333;
             }
             QSlider::handle:horizontal {
-                background: white;
-                width: 24px;
-                height: 24px;
-                margin: -9px 0;
-                border-radius: 12px;
-                border: 1px solid rgba(0, 0, 0, 0.1);
+                background: #00FF00;
+                width: 16px;
+                height: 16px;
+                margin: -5px 0;
+                border: 2px solid #000000;
             }
             QSlider::handle:horizontal:hover {
-                background: #F0F0F0;
-                border: 1px solid rgba(41, 121, 255, 0.5);
+                background: #00CC00;
+                width: 18px;
+                height: 18px;
+                margin: -6px 0;
             }
         """)
         
         def on_change(value):
-            value_label.setText(f"{value}{suffix}")
+            value_label.setText(f"{prefix}{value}{suffix}")
             callback(value)
             
         slider.valueChanged.connect(on_change)
@@ -270,75 +287,120 @@ class SettingsDialog(QDialog):
         labels_layout = QHBoxLayout()
         
         min_label = QLabel(label_min)
-        min_label.setFont(QFont("Inter", 9, QFont.Weight.Medium))
-        min_label.setStyleSheet("color: #98989D; text-transform: uppercase; letter-spacing: 1px;")
+        min_label.setFont(self._get_mono_font(8))
+        min_label.setStyleSheet("color: #444444;")
         labels_layout.addWidget(min_label)
         
         labels_layout.addStretch()
         
         max_label = QLabel(label_max)
-        max_label.setFont(QFont("Inter", 9, QFont.Weight.Medium))
-        max_label.setStyleSheet("color: #98989D; text-transform: uppercase; letter-spacing: 1px;")
-        labels_layout.addWidget(max_label)
+        max_label.setFont(self._get_mono_font(8))
+        max_label.setStyleSheet("color: #444444;")
+        labels_layout. addWidget(max_label)
         
         layout.addLayout(labels_layout)
         
         # Salva riferimenti per il reset
         self.sliders[key] = slider
-        self.value_labels[key] = (value_label, suffix)
+        self.value_labels[key] = (value_label, prefix, suffix)
         
+        return container
+        
+    def _create_console_log(self):
+        """Crea il log decorativo della console."""
+        container = QFrame()
+        container.setStyleSheet("""
+            QFrame {
+                border-left: 2px solid #222222;
+                padding-left: 12px;
+            }
+        """)
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(12, 8, 0, 8)
+        layout.setSpacing(4)
+        
+        logs = [
+            "> CHECKING_BOUNDS... OK",
+            "> BUFFER_SIZE: 1024KB",
+            "> AWAITING_COMMIT"
+        ]
+        
+        for log in logs:
+            label = QLabel(log)
+            label.setFont(self._get_mono_font(8))
+            label.setStyleSheet("color: #444444; background: transparent;")
+            layout. addWidget(label)
+            
         return container
         
     def _create_footer(self):
         """Crea il footer con i bottoni."""
-        container = QWidget()
+        container = QFrame()
         container.setStyleSheet("""
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 transparent, stop:1 #1C1C1E);
+            QFrame {
+                background-color: #111111;
+                border-top:  1px solid rgba(0, 255, 0, 0.3);
+            }
         """)
-        layout = QVBoxLayout(container)
-        layout.setContentsMargins(24, 8, 24, 24)
+        layout = QHBoxLayout(container)
+        layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
         
-        # Bottone Salva
-        save_btn = QPushButton("💾  Salva Modifiche")
-        save_btn.setFont(QFont("Inter", 14, QFont.Weight.Bold))
-        save_btn.setFixedHeight(52)
-        save_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        save_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #2979FF;
-                color:  white;
-                border: none;
-                border-radius: 12px;
-            }
-            QPushButton:hover {
-                background-color: #448AFF;
-            }
-            QPushButton:pressed {
-                background-color: #1E6AE1;
-            }
-        """)
-        save_btn.clicked.connect(self.accept)
-        layout.addWidget(save_btn)
-        
-        # Bottone Ripristina Default
-        reset_btn = QPushButton("Ripristina Default")
-        reset_btn.setFont(QFont("Inter", 12, QFont.Weight.Medium))
-        reset_btn.setFixedHeight(40)
+        # Bottone Ripristina (2/5 della larghezza)
+        reset_btn = QPushButton()
+        reset_btn.setFixedHeight(48)
         reset_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         reset_btn.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
-                color: #98989D;
-                border: none;
+                border: 1px solid rgba(255, 51, 51, 0.4);
+                color: #FF3333;
             }
             QPushButton:hover {
-                color: white;
+                background-color: rgba(255, 51, 51, 0.1);
+                border: 1px solid #FF3333;
             }
         """)
+        
+        # Layout interno per il bottone reset
+        reset_layout = QVBoxLayout(reset_btn)
+        reset_layout.setSpacing(2)
+        reset_layout.setContentsMargins(8, 4, 8, 4)
+        
+        reset_label1 = QLabel("RIPRISTINA")
+        reset_label1.setFont(self._get_mono_font(8, bold=True))
+        reset_label1.setStyleSheet("color: #FF3333; background: transparent;")
+        reset_label1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        reset_label2 = QLabel("DEFAULT")
+        reset_label2.setFont(self._get_mono_font(7))
+        reset_label2.setStyleSheet("color: rgba(255, 51, 51, 0.7); background: transparent;")
+        reset_label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
         reset_btn.clicked.connect(self._reset_to_defaults)
-        layout.addWidget(reset_btn)
+        layout.addWidget(reset_btn, 2)
+        
+        # Bottone Salva (3/5 della larghezza)
+        save_btn = QPushButton("💾  SALVA MODIFICHE")
+        save_btn.setFont(self._get_mono_font(10, bold=True))
+        save_btn.setFixedHeight(48)
+        save_btn.setCursor(Qt. CursorShape.PointingHandCursor)
+        save_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #00FF00;
+                color: #050505;
+                border: 1px solid #00FF00;
+                letter-spacing: 1px;
+            }
+            QPushButton: hover {
+                background-color:  #00CC00;
+            }
+            QPushButton:pressed {
+                background-color: #009900;
+            }
+        """)
+        save_btn.clicked.connect(self. accept)
+        layout.addWidget(save_btn, 3)
         
         return container
         
